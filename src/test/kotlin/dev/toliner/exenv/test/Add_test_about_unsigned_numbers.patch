@@ -1,0 +1,145 @@
+Index: src/test/kotlin/dev/toliner/exenv/test/EnvConfigTest.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/test/kotlin/dev/toliner/exenv/test/EnvConfigTest.kt	(revision 027ba5aa476bfa85e2ca8a466cb3e475bdb1a09d)
++++ src/test/kotlin/dev/toliner/exenv/test/EnvConfigTest.kt	(date 1595592956127)
+@@ -9,6 +9,7 @@
+ import io.kotest.property.arbitrary.*
+ import kotlin.reflect.full.declaredMemberProperties
+ 
++@OptIn(ExperimentalUnsignedTypes::class)
+ class EnvConfigTest : FunSpec({
+     val intArb = Arb.int()
+     val longArb = Arb.long()
+@@ -16,6 +17,10 @@
+     val byteArb = Arb.byte()
+     val floatArb = Arb.float()
+     val doubleArb = Arb.double()
++    val uIntArb = Arb.int().map { it.toUInt() }
++    val uLongArb = Arb.long().map { it.toULong() }
++    val uShortArb = Arb.ushort()
++    val uByteArb = Arb.byte().map { it.toUByte() }
+     val strArb = Arb.string().filter { it.toLongOrNull() == null && it.toDoubleOrNull() == null }
+ 
+     fun randomInt() = intArb.next()
+@@ -24,6 +29,10 @@
+     fun randomByte() = byteArb.next()
+     fun randomFloat() = floatArb.next()
+     fun randomDouble() = doubleArb.next()
++    fun randomUInt() = uIntArb.next()
++    fun randomULong() = uLongArb.next()
++    fun randomUShort() = uShortArb.next()
++    fun randomUByte() = uByteArb.next()
+     fun randomString() = strArb.next()
+ 
+     test("When exists all env value") {
+@@ -40,6 +49,14 @@
+             floatNotNull = randomFloat(),
+             double = randomDouble(),
+             doubleNotNull = randomDouble(),
++            uInt = randomUInt(),
++            uIntNotNull = randomUInt(),
++            uLong = randomULong(),
++            uLongNotNull = randomULong(),
++            uShort = randomUShort(),
++            uShortNotNull = randomUShort(),
++            uByte = randomUByte(),
++            uByteNotNull = randomUByte(),
+             string = randomString(),
+             stringNotNull = randomString()
+         )
+@@ -66,6 +83,14 @@
+             floatNotNull = randomFloat(),
+             double = null,
+             doubleNotNull = randomDouble(),
++            uInt = null,
++            uIntNotNull = randomUInt(),
++            uLong = null,
++            uLongNotNull = randomULong(),
++            uShort = null,
++            uShortNotNull = randomUShort(),
++            uByte = null,
++            uByteNotNull = randomUByte(),
+             string = null,
+             stringNotNull = randomString()
+         )
+@@ -86,6 +111,10 @@
+             byteNotNull = randomByte(),
+             floatNotNull = randomFloat(),
+             doubleNotNull = randomDouble(),
++            uIntNotNull = randomUInt(),
++            uLongNotNull = randomULong(),
++            uShortNotNull = randomUShort(),
++            uByteNotNull = randomUByte(),
+             stringNotNull = randomString()
+         )
+         for (i in Configurations.NotNull::class.declaredMemberProperties.indices) {
+@@ -118,7 +147,15 @@
+             float = randomFloat(),
+             floatNotNull = randomFloat(),
+             double = randomDouble(),
+-            doubleNotNull = randomDouble()
++            doubleNotNull = randomDouble(),
++            uInt = randomUInt(),
++            uIntNotNull = randomUInt(),
++            uLong = randomULong(),
++            uLongNotNull = randomULong(),
++            uShort = randomUShort(),
++            uShortNotNull = randomUShort(),
++            uByte = randomUByte(),
++            uByteNotNull = randomUByte()
+         )
+         for (i in Configurations.Numbers::class.declaredMemberProperties.indices) {
+             withEnvironment(Configurations.Numbers::class
+@@ -139,6 +176,7 @@
+     }
+ })
+ 
++@OptIn(ExperimentalUnsignedTypes::class)
+ private object Configurations : EnvConfig {
+     data class All(
+         val int: Int? = envInt("int"),
+@@ -153,6 +191,14 @@
+         val floatNotNull: Float = envFloatNotNull("floatNotNull"),
+         val double: Double? = envDouble("double"),
+         val doubleNotNull: Double = envDoubleNotNull("doubleNotNull"),
++        val uInt: UInt? = envUInt("uint"),
++        val uIntNotNull: UInt = envUIntNotNull("uintNotNull"),
++        val uLong: ULong? = envULong("ulong"),
++        val uLongNotNull: ULong = envULongNotNull("ulongNotNull"),
++        val uShort: UShort? = envUShort("ushort"),
++        val uShortNotNull: UShort = envUShortNotNull("ushortNotNull"),
++        val uByte: UByte? = envUByte("ubyte"),
++        val uByteNotNull: UByte = envUByteNotNull("ubyteNotNull"),
+         val string: String? = envString("string"),
+         val stringNotNull: String = envStringNotNull("stringNotNull")
+     )
+@@ -164,6 +210,10 @@
+         val byteNotNull: Byte = envByteNotNull("byteNotNull"),
+         val floatNotNull: Float = envFloatNotNull("floatNotNull"),
+         val doubleNotNull: Double = envDoubleNotNull("doubleNotNull"),
++        val uIntNotNull: UInt = envUIntNotNull("uintNotNull"),
++        val uLongNotNull: ULong = envULongNotNull("ulongNotNull"),
++        val uShortNotNull: UShort = envUShortNotNull("ushortNotNull"),
++        val uByteNotNull: UByte = envUByteNotNull("ubyteNotNull"),
+         val stringNotNull: String = envStringNotNull("stringNotNull")
+     )
+ 
+@@ -179,6 +229,14 @@
+         val float: Float? = envFloat("float"),
+         val floatNotNull: Float = envFloatNotNull("floatNotNull"),
+         val double: Double? = envDouble("double"),
+-        val doubleNotNull: Double = envDoubleNotNull("doubleNotNull")
++        val doubleNotNull: Double = envDoubleNotNull("doubleNotNull"),
++        val uInt: UInt? = envUInt("uint"),
++        val uIntNotNull: UInt = envUIntNotNull("uintNotNull"),
++        val uLong: ULong? = envULong("ulong"),
++        val uLongNotNull: ULong = envULongNotNull("ulongNotNull"),
++        val uShort: UShort? = envUShort("ushort"),
++        val uShortNotNull: UShort = envUShortNotNull("ushortNotNull"),
++        val uByte: UByte? = envUByte("ubyte"),
++        val uByteNotNull: UByte = envUByteNotNull("ubyteNotNull")
+     )
+ }
